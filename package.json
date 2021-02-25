@@ -1,0 +1,27 @@
+{
+  "name": "surf-weather",
+  "version": "1.0.0",
+  "description": "typscript node api and frontend react",
+  "main": "index.js",
+  "repository": "git@github.com:jplindgren/SurfWeather.git",
+  "author": "Joao Paulo Lindgren <joaopozo@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "nodejs",
+    "typescript",
+    "api"
+  ],
+  "scripts": {
+    "test": "echo 'error: no tests' && exit 1",
+    "build": "tsc",
+    "start": "yarn build && node dist/src/index.js"
+  },
+  "devDependencies": {
+    "@types/module-alias": "^2.0.0",
+    "typescript": "^4.2.2"
+  },
+  "dependencies": {
+    "@types/node": "^14.14.31",
+    "module-alias": "^2.2.2"
+  }
+}
