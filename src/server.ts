@@ -21,7 +21,7 @@ export class SetupServer extends Server {
     //return this.app();
   }
 
-  private setupExpress() : void {
+  private setupExpress(): void {
     //bodyParser.json become express.json?
     this.app.use(express.json());
   }
@@ -31,11 +31,3 @@ export class SetupServer extends Server {
     this.addControllers([forecastController]);
   }
 }
-
-//ccreate class inheriting Server overnight
- //constructor call super, default port
-
- //private setupExpress
-  //call bodyparser json middleware
-
-  //create init methoid and call setupexpress

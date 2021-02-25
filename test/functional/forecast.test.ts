@@ -44,4 +44,4 @@ describe('Beach forecast functional test', () => {
       },
     ]);
   });
-})
+});
