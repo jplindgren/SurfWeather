@@ -1,24 +1,6 @@
 import { ForecastPoint, StormGlass } from '@src/clients/stormGlass';
+import { Beach } from '@src/models/beach';
 import { InternalError } from '@src/util/errors/internal-error';
-
-export enum BeachDirection {
-  N = 'N',
-  S = 'S',
-  E = 'E',
-  W = 'W',
-}
-
-export interface BeachPosition {
-  lat: number;
-  lng: number;
-  direction: BeachDirection;
-}
-
-export interface Beach {
-  name: string;
-  position: BeachPosition;
-  user: string;
-}
 
 export interface BeachForecast extends Omit<Beach, 'user'>, ForecastPoint {
   rating: number;
@@ -54,7 +36,6 @@ export class Forecast {
       }
       return this.groupForecastByTime(forecast);
     } catch (err) {
-      console.log(err);
       throw new ForecastProcessingInternalError(err.message);
     }
   }
