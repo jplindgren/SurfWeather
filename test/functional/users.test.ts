@@ -58,7 +58,6 @@ describe('users functional tests', () => {
         .post('/users/authenticate')
         .send({ email: newUser.email, password: newUser.password });
 
-      console.log(response.body);
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         code: 200,

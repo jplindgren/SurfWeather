@@ -28,7 +28,11 @@ const schema = new mongoose.Schema(
       lng: { type: Number, required: true },
       direction: { type: String, required: true },
     },
-    //userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
   {
     toJSON: {
