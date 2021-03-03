@@ -11,6 +11,9 @@
     "typescript",
     "api"
   ],
+  "engines": {
+    "node": "12.x"
+  },
   "scripts": {
     "test": "yarn test:unit && yarn test:functional",
     "test:unit": "jest",
