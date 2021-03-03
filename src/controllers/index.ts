@@ -1,3 +1,4 @@
+import logger from '@src/logger';
 import { CUSTOM_VALIDATION } from '@src/models/user';
 import { Response } from 'express';
 import mongoose from 'mongoose';
@@ -11,6 +12,7 @@ export abstract class BaseController {
       const errorResponse = this.handleClientValidationErrors(error);
       this.setResponse(res, errorResponse.code, errorResponse.error);
     } else {
+      logger.error(error);
       this.setResponse(res, 500, 'Oops.. Something went wrong.');
     }
   }

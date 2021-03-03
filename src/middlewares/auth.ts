@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import AuthService from '@src/services/auth';
 import { User } from '@src/models/user';
+import logger from '@src/logger';
 
 export async function authMiddleware(
   req: Partial<Request>,
@@ -25,6 +26,7 @@ export async function authMiddleware(
     req.user = decodedUser;
     return next();
   } catch (err) {
+    logger.error(err);
     return res.status?.(401)?.send({ code: 401, error: err.message });
   }
 }

@@ -1,3 +1,4 @@
+import logger from '@src/logger';
 import { InternalError } from '@src/util/errors/internal-error';
 import axios, { AxiosStatic } from 'axios';
 import config from 'config';
