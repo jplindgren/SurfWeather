@@ -30,3 +30,15 @@ jobs:
 
       - name: Run all tests
         run: yarn test
+
+      - name: Heroku Git Initialize
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          APP: ${{ secrets.HEROKU_APP_NAME }}
+        run: git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/$APP.git
+
+      - name: Deployment
+        if: github.ref == 'refs/heads/master'
+        run: git push heroku HEAD:master -f
+        env:
+          CI: true
