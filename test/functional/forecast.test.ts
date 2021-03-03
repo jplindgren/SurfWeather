@@ -46,7 +46,7 @@ describe('Beach forecast functional test', () => {
     }).save();
   });
 
-  it.only('should return a forecast with just a few times', async () => {
+  it('should return a forecast with just a few times', async () => {
     nock('https://api.stormglass.io:443', {
       encodedQueryParams: true,
       reqheaders: {
