@@ -1,5 +1,6 @@
 import logger from '@src/logger';
 import { CUSTOM_VALIDATION } from '@src/models/user';
+import ApiError, { APIError } from '@src/util/errors/api-error';
 import { Response } from 'express';
 import mongoose from 'mongoose';
 
@@ -17,8 +18,12 @@ export abstract class BaseController {
     }
   }
 
+  protected sendErrorResponse(res: Response, apiError: APIError): Response {
+    return res.status(apiError.code).send(ApiError.format(apiError));
+  }
+
   private setResponse(res: Response, code: number, message: string): void {
-    res.status(code).send({ code, error: message });
+    res.status(code).send(ApiError.format({ code, message }));
   }
 
   private handleClientValidationErrors(

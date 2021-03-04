@@ -22,11 +22,15 @@ export class UsersController extends BaseController {
   public async authenticate(req: Request, res: Response): Promise<Response> {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
-    if (!user) return res.status(401).send({ code: 401, error: 'Not found' });
+    if (!user)
+      return this.sendErrorResponse(res, { code: 401, message: 'Not found' });
 
     const authenticated = await AuthService.compare(password, user.password);
     if (!authenticated)
-      return res.status(401).send({ code: 401, error: 'Unauthorized' });
+      return this.sendErrorResponse(res, {
+        code: 401,
+        message: 'Unauthorized',
+      });
 
     const token = AuthService.generateToken(user.toJSON());
     return res.status(200).send({ code: 200, token });

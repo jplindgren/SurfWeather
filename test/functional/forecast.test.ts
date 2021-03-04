@@ -88,6 +88,10 @@ describe('Beach forecast functional test', () => {
       .set({ 'x-access-token': token });
 
     expect(status).toBe(500);
-    expect(body).toStrictEqual({ error: 'Oops.. Something went wrong' });
+    expect(body).toStrictEqual({
+      code: 500,
+      error: 'Internal Server Error',
+      message: 'Oops.. Something went wrong',
+    });
   });
 });
