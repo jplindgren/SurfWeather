@@ -15,7 +15,7 @@ import rateLimit from 'express-rate-limit';
 
 const rateLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 1,
+  max: 10,
   keyGenerator: (req: Request): string => req.ip,
   handler: (_, res: Response): void => {
     res.status(429).send({

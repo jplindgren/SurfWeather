@@ -1,5 +1,6 @@
 import logger from '@src/logger';
 import { InternalError } from '@src/util/errors/internal-error';
+import { TimeUtil } from '@src/util/time';
 import axios, { AxiosStatic } from 'axios';
 import config from 'config';
 import { StormGlassConfig } from './stormGlassConfig';
@@ -62,9 +63,12 @@ export class StormGlass {
     lat: number,
     long: number
   ): Promise<ForecastPoint[]> {
+    const endTimeStamp = TimeUtil.getUnixTimeForAFutureDay(1);
     try {
       const response = await this.request.get<StormGlassForecastResponse>(
-        `${stormGlassResourceConfig.apiUrl}/weather/point?params=${this.stormGlassApiParams}&source=${this.stormGlassApiSource}&lat=${lat}&lng=${long}`,
+        `${stormGlassResourceConfig.apiUrl}/weather/point?params=${this.stormGlassApiParams}
+          &source=${this.stormGlassApiSource}&end=${endTimeStamp}
+          &lat=${lat}&lng=${long}`,
         {
           headers: {
             Authorization: stormGlassResourceConfig.apiToken,
