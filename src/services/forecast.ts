@@ -1,7 +1,9 @@
 import { ForecastPoint, StormGlass } from '@src/clients/stormGlass';
 import logger from '@src/logger';
 import { Beach } from '@src/models/beach';
+import { Rating } from '@src/services/rating';
 import { InternalError } from '@src/util/errors/internal-error';
+import { orderBy } from 'lodash';
 
 export interface BeachForecast extends Omit<Beach, 'user'>, ForecastPoint {
   rating: number;
@@ -19,28 +21,49 @@ export class ForecastProcessingInternalError extends InternalError {
 }
 
 export class Forecast {
-  constructor(protected stormGlass: StormGlass = new StormGlass()) {}
+  constructor(
+    protected stormGlass: StormGlass = new StormGlass(),
+    protected RatingService: typeof Rating = Rating
+  ) {}
 
-  public async getBeachesForecast(beaches: Beach[]): Promise<TimeForecast[]> {
-    const forecast: BeachForecast[] = [];
+  public async processBeachesForecast(
+    beaches: Beach[]
+  ): Promise<TimeForecast[]> {
     logger.info(`Preparing the forecast for ${beaches.length} beaches`);
     try {
-      for (const beach of beaches) {
-        const points = await this.stormGlass.fetchPoints(
-          beach.position.lat,
-          beach.position.lng
-        );
-
-        const enrichedPoints = points.map((point) =>
-          this.enrichForeCastPointData(beach, point, 1)
-        );
-        forecast.push(...enrichedPoints);
-      }
-      return this.groupForecastByTime(forecast);
+      const beachForecast = await this.calculateBeachRating(beaches);
+      const timeForecast = this.groupForecastByTime(beachForecast);
+      return timeForecast.map((x) => ({
+        time: x.time,
+        forecast: orderBy(x.forecast, 'rating', 'desc'),
+      }));
     } catch (err) {
       logger.error(err);
       throw new ForecastProcessingInternalError(err.message);
     }
+  }
+
+  private async calculateBeachRating(
+    beaches: Beach[]
+  ): Promise<BeachForecast[]> {
+    const forecast: BeachForecast[] = [];
+    for (const beach of beaches) {
+      const rating = new this.RatingService(beach);
+      const points = await this.stormGlass.fetchPoints(
+        beach.position.lat,
+        beach.position.lng
+      );
+
+      const enrichedPoints = points.map((point) =>
+        this.enrichForeCastPointData(
+          beach,
+          point,
+          rating.getRateForPoint(point)
+        )
+      );
+      forecast.push(...enrichedPoints);
+    }
+    return forecast;
   }
 
   private enrichForeCastPointData(

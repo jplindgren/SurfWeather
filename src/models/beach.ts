@@ -1,6 +1,6 @@
 import mongoose, { Model, Document } from 'mongoose';
 
-export enum BeachDirection {
+export enum Direction {
   N = 'N',
   S = 'S',
   E = 'E',
@@ -10,7 +10,7 @@ export enum BeachDirection {
 export interface BeachPosition {
   lat: number;
   lng: number;
-  direction: BeachDirection;
+  direction: Direction;
 }
 
 export interface Beach {
