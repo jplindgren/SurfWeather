@@ -1,5 +1,6 @@
 import { User } from '@src/models/user';
 import AuthService from '@src/services/auth';
+import { ACCESS_TOKEN_HEADER } from '@src/middlewares/auth';
 
 describe('users functional tests', () => {
   const newUser = {
@@ -96,6 +97,41 @@ describe('users functional tests', () => {
         error: 'Unauthorized',
         message: 'Unauthorized',
       });
+    });
+  });
+
+  describe('when getting user profile info', () => {
+    it(`should return the token's user information`, async () => {
+      const user = await User.create(newUser);
+      const token = AuthService.generateToken(user.toJSON());
+
+      const userInfoResponse = await global.testRequest
+        .get('/users/me')
+        .set(ACCESS_TOKEN_HEADER, token);
+
+      expect(userInfoResponse.status).toBe(200);
+      expect(userInfoResponse.body).toEqual({
+        code: 200,
+        info: {
+          name: newUser.name,
+          email: newUser.email,
+        },
+      });
+    });
+  });
+
+  it(`should return not found if the user does not exists`, async () => {
+    const token = AuthService.generateToken(newUser);
+
+    const userInfoResponse = await global.testRequest
+      .get('/users/me')
+      .set(ACCESS_TOKEN_HEADER, token);
+
+    expect(userInfoResponse.status).toBe(404);
+    expect(userInfoResponse.body).toEqual({
+      code: 404,
+      error: 'Not Found',
+      message: 'User not found',
     });
   });
 });

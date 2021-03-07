@@ -3,12 +3,14 @@ import AuthService from '@src/services/auth';
 import { User } from '@src/models/user';
 import logger from '@src/logger';
 
+export const ACCESS_TOKEN_HEADER = 'x-access-token';
+
 export async function authMiddleware(
   req: Partial<Request>,
   res: Partial<Response>,
   next: NextFunction
 ) {
-  const token = req.headers?.['x-access-token'];
+  const token = req.headers?.[ACCESS_TOKEN_HEADER];
   if (!token)
     return res
       .status?.(401)
