@@ -1,9 +1,10 @@
 import logger from '@src/logger';
 import { InternalError } from '@src/util/errors/internal-error';
 import { TimeUtil } from '@src/util/time';
-import axios, { AxiosStatic } from 'axios';
+import axios, { AxiosResponse, AxiosStatic } from 'axios';
 import config from 'config';
 import { StormGlassConfig } from './stormGlassConfig';
+import CacheUtil from '@src/util/cache';
 
 export interface StormGlassPointValue {
   readonly [key: string]: number;
@@ -57,25 +58,24 @@ export class StormGlass {
     'swellDirection,swellHeight,swellPeriod,waveDirection,waveHeight,windDirection,windSpeed';
   readonly stormGlassApiSource = 'noaa';
 
-  constructor(protected request: AxiosStatic = axios) {}
+  constructor(
+    protected request: AxiosStatic = axios,
+    protected cache: typeof CacheUtil = CacheUtil
+  ) {}
 
   public async fetchPoints(
     lat: number,
     long: number
   ): Promise<ForecastPoint[]> {
-    const endTimeStamp = TimeUtil.getUnixTimeForAFutureDay(1);
     try {
-      const response = await this.request.get<StormGlassForecastResponse>(
-        `${stormGlassResourceConfig.apiUrl}/weather/point?params=${this.stormGlassApiParams}
-          &source=${this.stormGlassApiSource}&end=${endTimeStamp}
-          &lat=${lat}&lng=${long}`,
-        {
-          headers: {
-            Authorization: stormGlassResourceConfig.apiToken,
-          },
-        }
-      );
-      return this.normalizeStormGlassResponse(response.data);
+      const cacheKey = this.getCacheKey(lat, long);
+      if (CacheUtil.hasKey(cacheKey)) {
+        return CacheUtil.get(cacheKey)!;
+      } else {
+        const response = await this.fetchPointsFromApi(lat, long);
+        CacheUtil.set(cacheKey, response);
+        return response;
+      }
     } catch (err) {
       if (err.response?.status) {
         throw new StormGlassResponseError(
@@ -86,6 +86,28 @@ export class StormGlass {
       }
       throw new ClientRequestError(err.message);
     }
+  }
+
+  public async fetchPointsFromApi(
+    lat: number,
+    long: number
+  ): Promise<ForecastPoint[]> {
+    const endTimeStamp = TimeUtil.getUnixTimeForAFutureDay(1);
+    const response = await this.request.get<StormGlassForecastResponse>(
+      `${stormGlassResourceConfig.apiUrl}/weather/point?params=${this.stormGlassApiParams}
+          &source=${this.stormGlassApiSource}&end=${endTimeStamp}
+          &lat=${lat}&lng=${long}`,
+      {
+        headers: {
+          Authorization: stormGlassResourceConfig.apiToken,
+        },
+      }
+    );
+    return this.normalizeStormGlassResponse(response.data);
+  }
+
+  private getCacheKey(lat: number, lng: number): string {
+    return `forecast_key_lat:${lat}&lng:${lng}`;
   }
 
   private normalizeStormGlassResponse(

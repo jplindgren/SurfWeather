@@ -4,6 +4,7 @@ import api_forecast_response_1_beach from '@test/fixtures/api_forecast_response_
 import { Beach } from '@src/models/beach';
 import { User } from '@src/models/user';
 import AuthService from '@src/services/auth';
+import CacheUtil from '@src/util/cache';
 
 describe('Beach forecast functional test', () => {
   const defaultUser = {
@@ -44,6 +45,8 @@ describe('Beach forecast functional test', () => {
       },
       user: otherUser.id,
     }).save();
+
+    CacheUtil.clearAllCache();
   });
 
   it('should return a forecast with just a few times', async () => {
